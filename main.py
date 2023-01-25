@@ -5,55 +5,24 @@ import uvicorn
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.responses import HTMLResponse
 
-
-class ConnectionManager:
-    def __init__(self):
-        self.active_connections: Dict[WebSocket, str] = {}
-
-    async def connect(self, websocket: WebSocket, name: str):
-        await websocket.accept()
-        self.active_connections[websocket] = name
-
-    def disconnect(self, websocket: WebSocket) -> str:
-        name = self.active_connections[websocket]
-        del self.active_connections[websocket]
-        return name
-
-    async def broadcast(self, message: str):
-        for connection in self.active_connections:
-            await connection.send_text(message)
-
+from managers import ConnectionManager
+from view import Login, Chat
 
 app = FastAPI()
 
-with open("login.html") as login_page, \
-        open("chat.html") as chat_page, \
-        open("crypto-js.js") as cryptojs, \
-        open("bootstrap.js") as bootstrap_js, \
-        open("bootstrap.css") as bootstrap_css:
-    cryptojs = cryptojs.read()
-    bootstrap_js = bootstrap_js.read()
-    bootstrap_css = bootstrap_css.read()
-    login_content = login_page.read()
-    chat_content = chat_page.read()
-
-    chat_content = chat_content.replace("/*crypto-js*/", cryptojs)
-    chat_content = chat_content.replace("/*Bootstrap.css*/", bootstrap_css)
-    chat_content = chat_content.replace("/*Bootstrap.js*/", bootstrap_js)
-    login_content = login_content.replace("/*crypto-js*/", cryptojs)
-    login_content = login_content.replace("/*Bootstrap.css*/", bootstrap_css)
-    login_content = login_content.replace("/*Bootstrap.js*/", bootstrap_js)
+chat = Chat()
+login = Login()
 rooms: Dict[str, ConnectionManager] = {}
 
 
 @app.get("/")
 async def read_root():
-    return HTMLResponse(login_content)
+    return HTMLResponse(login.content)
 
 
 @app.get("/room/{room_hash}")
 async def read_root():
-    return HTMLResponse(chat_content)
+    return HTMLResponse(chat.content)
 
 
 @app.websocket("/ws/{room_hash}")
