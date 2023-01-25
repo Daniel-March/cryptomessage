@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <style>
+        /*bootstrap.css*/
+    </style>
+
+    <script>
+        /*bootstrap.js*/
+    </script>
+
+    <script>
+        /*crypto-js*/
+    </script>
+
+
+    <style>
+        #chat {
+            overflow-y: auto;
+        }
+
+        #chat::-webkit-scrollbar {
+            width: 12px;
+        }
+
+        #chat::-webkit-scrollbar-track {
+            background: rgb(33, 37, 41);
+        }
+
+        #chat::-webkit-scrollbar-thumb {
+            background-color: #6c757d;
+            border-radius: 20px;
+        }
+    </style>
+    <title>chat</title>
+</head>
+<body class="bg-black text-white">
+<!--    Header    -->
+<div class="position-fixed start-0 top-0 end-0">
+    <div class="container p-3 pt-2 pb-2 bg-dark rounded-bottom d-flex justify-content-between">
+        <div>User: <span id="name">Загрузка...</span></div>
+        <div>Room key: <span id="room_key">Загрузка...</span></div>
+
+    </div>
+</div>
+
+
+<!--    Chat    -->
+<div class="position-fixed bottom-0 start-0 top-0 end-0">
+    <div class="h-100 pb-5 pt-5">
+        <div class="h-100 pb-5">
+            <div id="chat" class="container rounded border-dark border mb-5 h-100">
+                <div>Загрузка...</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--    New message    -->
+<div class="position-fixed bottom-0 start-0 end-0">
+    <div class="container pb-4 p-3 bg-dark rounded-top">
+        <div class="input-group flex-nowrap">
+            <input type="text" class="form-control bg-secondary border-white text-white shadow-none"
+                   placeholder="New Message" aria-label="New Message" id="message"
+                   aria-describedby="addon-wrapping">
+            <button class="btn btn-outline-secondary text-white shadow-none border-white" type="button"
+                    onclick="sendMessage()">Send
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    /*vars.js*/
+    /*encryption.js*/
+    /*socket.js*/
+    /*functions.js*/
+    document.onkeydown = (e) => {
+        if (e.keyCode === 13) {
+            sendMessage();
+        }
+    }
+</script>
+</body>
+</html>
