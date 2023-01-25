@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <style>
+        /*Bootstrap.css*/
+    </style>
+
+    <script>
+        /*Bootstrap.js*/
+    </script>
+
+    <script>
+        /*crypto-js*/
+    </script>
+
+    <style>
+        html,
+        body {
+            height: 100%;
+        }
+
+        body {
+            display: flex;
+            align-items: center;
+            padding-top: 40px;
+            padding-bottom: 40px;
+            background-color: #f5f5f5;
+        }
+
+        .form-signin {
+            max-width: 330px;
+            padding: 15px;
+        }
+
+        .form-signin .form-floating:focus-within {
+            z-index: 2;
+        }
+
+        .form-signin input[type="email"] {
+            margin-bottom: -1px;
+            border-bottom-right-radius: 0;
+            border-bottom-left-radius: 0;
+        }
+
+        .form-signin input[type="password"] {
+            margin-bottom: 10px;
+            border-top-left-radius: 0;
+            border-top-right-radius: 0;
+        }
+    </style>
+    <title>login</title>
+</head>
+<body>
+<main class="form-signin w-100 m-auto">
+    <h1 class="h3 mb-3 fw-normal text-center">Lobby</h1>
+
+    <div class="form-floating">
+        <input type="text" class="form-control" id="room_key" placeholder="room_key" oninput="checkRoomKey()">
+        <label for="room_key">Room key (length: 4, 8, 12, 16, ...)</label>
+    </div>
+    <div class="form-floating">
+        <input type="text" class="form-control mt-2" id="name" placeholder="Name" oninput="checkRoomKey()">
+        <label for="name">Your name</label>
+    </div>
+
+    <button id="logIn" class="w-100 btn btn-lg btn-primary mt-4">Connect</button>
+</main>
+<script>
+    function logIn() {
+        let roomKey = document.getElementById("room_key").value;
+        let name = document.getElementById("name").value;
+        let roomHash = CryptoJS.SHA3(roomKey).toString(CryptoJS.enc.Hex);
+        window.localStorage.setItem("roomKey", roomKey);
+        window.localStorage.setItem("name", name);
+        window.location = `/room/${roomHash}`
+    }
+
+    function checkRoomKey() {
+        let roomKeyInput = document.getElementById("room_key")
+        let nameInput = document.getElementById("name")
+        if (roomKeyInput.value.length > 0 && roomKeyInput.value.length % 4 === 0) {
+            roomKeyInput.className = roomKeyInput.className.replace(" text-danger", "")
+        } else {
+            roomKeyInput.className = roomKeyInput.className.replace(" text-danger", "")
+            roomKeyInput.className += " text-danger"
+        }
+        if (nameInput.value.length > 1) {
+            nameInput.className = nameInput.className.replace(" text-danger", "")
+        } else {
+            nameInput.className = nameInput.className.replace(" text-danger", "")
+            nameInput.className += " text-danger"
+        }
+        if (roomKeyInput.value.length > 0 && roomKeyInput.value.length % 4 === 0 &&
+            nameInput.value.length > 1) {
+            document.getElementById("logIn").onclick = logIn
+            document.getElementById("logIn").disabled = false
+
+        } else {
+            document.getElementById("logIn").onclick = null
+            document.getElementById("logIn").disabled = true
+
+        }
+    }
+
+    checkRoomKey()
+</script>
+</body>
+</html>

@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <style>
+        /*Bootstrap.css*/
+    </style>
+
+    <script>
+        /*Bootstrap.js*/
+    </script>
+
+    <script>
+        /*crypto-js*/
+    </script>
+
+
+    <style>
+        #chat {
+            overflow-y: auto;
+        }
+
+        #chat::-webkit-scrollbar {
+            width: 12px;
+        }
+
+        #chat::-webkit-scrollbar-track {
+            background: rgb(33, 37, 41);
+        }
+
+        #chat::-webkit-scrollbar-thumb {
+            background-color: #6c757d;
+            border-radius: 20px;
+        }
+    </style>
+    <title>chat</title>
+</head>
+<body class="bg-black text-white">
+<!--    Header    -->
+<div class="position-fixed start-0 top-0 end-0">
+    <div class="container p-3 pt-2 pb-2 bg-dark rounded-bottom d-flex justify-content-between">
+        <div>User: <span id="name">Загрузка...</span></div>
+       <div>Room key: <span id="room_key">Загрузка...</span></div>
+
+    </div>
+</div>
+
+
+<!--    Chat    -->
+<div class="position-fixed bottom-0 start-0 top-0 end-0">
+    <div class="h-100 pb-5 pt-5">
+        <div class="h-100 pb-5">
+            <div id="chat" class="container rounded border-dark border mb-5 h-100">
+                <div>Загрузка...</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--    New message    -->
+<div class="position-fixed bottom-0 start-0 end-0">
+    <div class="container pb-4 p-3 bg-dark rounded-top">
+        <div class="input-group flex-nowrap">
+            <input type="text" class="form-control bg-secondary border-white text-white shadow-none"
+                   placeholder="New Message" aria-label="New Message" id="message"
+                   aria-describedby="addon-wrapping">
+            <button class="btn btn-outline-secondary text-white shadow-none border-white" type="button"
+                    onclick="sendMessage()">Send
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let roomKey = window.localStorage.getItem("roomKey");
+    let name = window.localStorage.getItem("name");
+    if (roomKey === null || name === null) {
+        window.location = "/"
+    }
+    let roomHash = CryptoJS.SHA3(roomKey).toString(CryptoJS.enc.Hex);
+    let nameCrypt = encrypt(name, roomKey);
+    let chat = document.getElementById("chat")
+    let socket = new WebSocket(`ws://${window.location.host}/ws/${roomHash}?name=${nameCrypt}`);
+    let messages = [];
+
+    socket.onopen = function (e) {
+        document.getElementById("name").innerText = name;
+        document.getElementById("room_key").innerText = roomKey;
+        chat.innerHTML = "";
+    };
+
+    socket.onmessage = function (event) {
+        switch (event.data.slice(0, 1)) {
+            case "2":
+                let sign = event.data.slice(event.data.length - 32)
+                let encodedData = event.data.slice(1, event.data.length - 32)
+                let data = JSON.parse(decrypt(encodedData, roomKey))
+                if (sign === CryptoJS.MD5(encodedData + encrypt(data.name, roomKey)).toString(CryptoJS.enc.Hex))
+                    handleMessage(data)
+                break
+            case "1":
+                handleMessage({
+                    type: "userDisconnected",
+                    name: decrypt(event.data.slice(1), roomKey)
+                })
+                break
+            case "0":
+                handleMessage({
+                    type: "userConnected",
+                    name: decrypt(event.data.slice(1), roomKey)
+                })
+                break
+        }
+    };
+
+    socket.onclose = function (event) {
+        if (event.wasClean) {
+            alert(`[close] Соединение закрыто чисто, код=${event.code} причина=${event.reason}`);
+        } else {
+            alert('[close] Соединение прервано');
+        }
+    };
+
+    socket.onerror = function (error) {
+        alert(`${error}`);
+    };
+
+
+    function handleMessage(data) {
+        switch (data.type) {
+            case "message":
+                messages.push({
+                    name: data.name,
+                    text: data.text,
+                    type: "message"
+                })
+                updateChat()
+                break
+            case "userConnected":
+                messages.push({
+                    name: "User connected",
+                    text: data.name,
+                    type: "info"
+                })
+                updateChat()
+                break
+            case "userDisconnected":
+                messages.push({
+                    name: "User disconnected",
+                    text: data.name,
+                    type: "info"
+                })
+                updateChat()
+                break
+        }
+    }
+
+    function updateChat() {
+        chat.innerHTML = ""
+        for (let message of messages) {
+            let m = document.createElement("div")
+            m.innerText = `${message.name}: ${message.text}`
+            if (message.type === "info") {
+                m.className = "text-primary"
+            }
+            chat.appendChild(m)
+        }
+
+    }
+
+    function sendMessage() {
+        let message = document.getElementById("message").value
+        if (message.length === 0)
+            return
+        document.getElementById("message").value = ""
+        socket.send(`${encrypt(JSON.stringify({
+            type: "message",
+            text: message,
+            name: name
+        }), roomKey).toString(CryptoJS.enc.Hex)}`)
+    }
+
+    function encrypt(plainText, key) {
+        key = CryptoJS.enc.Utf8.parse(key);
+        const iv1 = CryptoJS.enc.Utf8.parse(key);
+        const encrypted = CryptoJS.AES.encrypt(plainText, key, {
+            keySize: 16,
+            iv: iv1,
+            mode: CryptoJS.mode.ECB,
+            padding: CryptoJS.pad.Pkcs7
+        });
+
+        return encrypted + "";
+    }
+
+    function decrypt(cipher, key) {
+        key = CryptoJS.enc.Utf8.parse(key);
+        const iv1 = CryptoJS.enc.Utf8.parse(key);
+        const plainText = CryptoJS.AES.decrypt(cipher, key, {
+            keySize: 16,
+            iv: iv1,
+            mode: CryptoJS.mode.ECB,
+            padding: CryptoJS.pad.Pkcs7
+        });
+
+        return plainText.toString(CryptoJS.enc.Utf8);
+    }
+
+    document.onkeydown = (e) => {
+        if (e.keyCode === 13) {
+            sendMessage();
+        }
+    }
+</script>
+</body>
+</html>
