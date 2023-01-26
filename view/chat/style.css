@@ -1,0 +1,16 @@
+#chat {
+    overflow-y: auto;
+}
+
+#chat::-webkit-scrollbar {
+    width: 12px;
+}
+
+#chat::-webkit-scrollbar-track {
+    background: rgb(33, 37, 41);
+}
+
+#chat::-webkit-scrollbar-thumb {
+    background-color: #6c757d;
+    border-radius: 20px;
+}

@@ -8,7 +8,7 @@ function encrypt(plainText, key) {
         padding: CryptoJS.pad.Pkcs7
     });
 
-    return encrypted + "";
+    return encrypted.toString();
 }
 
 function decrypt(cipher, key) {
