@@ -6,8 +6,7 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.responses import HTMLResponse
 
 from managers import ConnectionManager
-from view import Login
-from view.chat import Chat
+from view import Chat, Login
 
 app = FastAPI()
 
