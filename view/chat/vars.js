@@ -8,4 +8,5 @@ if (roomKey === null || name === null) {
 let roomHash = CryptoJS.SHA3(roomKey).toString(CryptoJS.enc.Hex);
 let nameCrypt = encrypt(name, roomKey);
 let chat = document.getElementById("chat");
+let messageInput = document.getElementById("message");
 let messages = [];

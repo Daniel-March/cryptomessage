@@ -46,19 +46,24 @@ function updateChat() {
         }
         chat.appendChild(m);
     }
+    chat.scrollTo({
+        top: chat.offsetHeight * 2,
+        behavior: 'smooth'
+    })
 }
 
 function sendMessage() {
-    let message = document.getElementById("message").value;
+    let message = messageInput.value;
     if (message.length === 0)
         return
-    document.getElementById("message").value = "";
+    messageInput.value = "";
     socket.send(encrypt(JSON.stringify({
         id: new Date().getTime().toString() + name,
         type: "newMessage",
         text: message,
         name: name
     }), roomKey));
+    messageInput.focus()
 }
 
 function shareMessageIDs() {

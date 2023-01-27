@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-
+    <meta name="viewport" content="width=device-width,initial-scale=1">
     <style>
         /*bootstrap.css*/
     </style>
@@ -21,10 +21,10 @@
 
     <title>CryptoMessage</title>
 </head>
-<body class="bg-black text-white">
+<body class="bg-light">
 
 <!--    Header    -->
-<div class="position-fixed start-0 top-0 end-0">
+<div class="position-fixed start-0 top-0 end-0 text-white">
     <div class="container p-3 pt-2 pb-2 bg-dark rounded-bottom d-flex justify-content-between">
         <div>User: <span id="name">Загрузка...</span></div>
         <div>Room key: <span id="room_key">Загрузка...</span></div>
@@ -45,7 +45,7 @@
 </div>
 
 <!--    New message    -->
-<div class="position-fixed bottom-0 start-0 end-0">
+<div id="new_message" class="position-fixed bottom-0 start-0 end-0">
     <div class="container pb-4 p-3 bg-dark rounded-top">
         <div class="input-group flex-nowrap">
             <input type="text" class="form-control bg-secondary border-white text-white shadow-none"
