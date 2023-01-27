@@ -37,7 +37,11 @@
 <div class="position-fixed bottom-0 start-0 top-0 end-0">
     <div class="h-100 pb-5 pt-5">
         <div class="h-100 pb-5">
-            <div id="chat" class="container rounded border-dark border mb-5 h-100">
+            <div id="chat" class="container rounded border-dark border mb-5 h-50">
+                <div>Загрузка...</div>
+            </div>
+
+            <div id="usersActivity" class="container rounded border-dark border mb-5 h-50">
                 <div>Загрузка...</div>
             </div>
         </div>
@@ -68,6 +72,7 @@
             sendMessage();
         }
     }
+    setInterval(shareActivity, 2000)
 </script>
 </body>
 </html>

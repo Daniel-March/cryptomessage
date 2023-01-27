@@ -1,28 +1,13 @@
 function handleMessage(data) {
     switch (data.type) {
         case "newMessage":
-            messages.push({
-                id: data.id,
-                name: data.name,
-                text: data.text,
-                type: "message"
-            });
+            handleNewChatMessage(data)
             break
         case "userConnected":
-            messages.push({
-                id: new Date().getTime().toString() + name,
-                name: "User connected",
-                text: data.name,
-                type: "info"
-            });
+            handleNewChatMessage(data)
             break
         case "userDisconnected":
-            messages.push({
-                id: new Date().getTime().toString() + name,
-                name: "User disconnected",
-                text: data.name,
-                type: "info"
-            });
+            handleNewChatMessage(data)
             break
         case "shareMessageIDs":
             shareMessages(data.ids);
@@ -30,20 +15,62 @@ function handleMessage(data) {
         case "shareMessages":
             synchronizeMessages(data.messages);
             break
+        case "shareActivity":
+            setUserActivity(data.userID, data.name, new Date(data.date));
+            break
+    }
+}
+
+function handleNewChatMessage(message) {
+    switch (message.type) {
+        case "newMessage":
+            messages.push({
+                id: message.id,
+                userID: message.userID,
+                date: message.date,
+                name: message.name,
+                text: message.text,
+                type: "message"
+            });
+            setUserActivity(message.userID, message.name, new Date(message.date))
+            break
+        case "userConnected":
+            messages.push({
+                id: new Date().getTime().toString() + name,
+                name: "User connected",
+                text: message.name,
+                type: "info"
+            });
+            break
+        case "userDisconnected":
+            messages.push({
+                id: new Date().getTime().toString() + name,
+                name: "User disconnected",
+                text: message.name,
+                type: "info"
+            });
+            break
+
     }
     updateChat();
 }
-
 
 function updateChat() {
     chat.innerHTML = "";
     messages.sort((a, b) => a.id > b.id ? 1 : -1);
     for (let message of messages) {
         let m = document.createElement("div");
-        m.innerText = `${message.name}: ${message.text}`;
+        let name = document.createElement("span");
+        let text = document.createElement("span");
+        name.innerText = message.name + ": "
+        text.innerText = message.text
         if (message.type === "info") {
             m.className = "text-primary";
+        } else {
+            name.style.color = "#" + message.userID.toString().slice(0, 6)
         }
+        m.appendChild(name);
+        m.appendChild(text);
         chat.appendChild(m);
     }
     chat.scrollTo({
@@ -57,8 +84,11 @@ function sendMessage() {
     if (message.length === 0)
         return
     messageInput.value = "";
+    let date = new Date().getTime()
     socket.send(encrypt(JSON.stringify({
-        id: new Date().getTime().toString() + name,
+        id: date + selfID,
+        userID: selfID,
+        date: date,
         type: "newMessage",
         text: message,
         name: name
@@ -77,6 +107,7 @@ function shareMessageIDs() {
 
 function shareMessages(knownMessageIDs) {
     let messagesForShare = messages.filter((m) => knownMessageIDs.indexOf(m.id) === -1 && m.type === "message");
+    console.log(messagesForShare)
     socket.send(encrypt(JSON.stringify({
         type: "shareMessages",
         messages: messagesForShare,
@@ -86,14 +117,52 @@ function shareMessages(knownMessageIDs) {
 
 function synchronizeMessages(inputMessages) {
     let ids = messages.filter((m) => m.type === "message").map((m) => m.id);
+    console.log("aaa",inputMessages)
     for (let inputMessage of inputMessages) {
         if (ids.indexOf(inputMessage.id) === -1) {
             messages.push({
                 id: inputMessage.id,
+                userID: inputMessage.userID,
+                date: inputMessage.date,
                 name: inputMessage.name,
                 text: inputMessage.text,
                 type: "message"
             });
+        }
+    }
+    updateChat();
+}
+
+function shareActivity() {
+    socket.send(encrypt(JSON.stringify({
+        type: "shareActivity",
+        userID: selfID,
+        name: name,
+        date: new Date().getTime(),
+    }), roomKey))
+}
+
+function setUserActivity(userID, name, date) {
+    users[userID] = {name, date}
+    updateUsersActivity()
+}
+
+function updateUsersActivity() {
+    usersActivity.innerHTML = "";
+
+    let usersActivityList = []
+    for (let userID in users) {
+        usersActivityList.push(users[userID])
+    }
+    usersActivityList.sort((a, b) => a.date < b.date ? 1 : -1)
+
+    for (let userActivity of usersActivityList) {
+        let ua = document.createElement("div");
+        if (new Date() - userActivity.date > 10000) {
+            delete users[userActivity.userID]
+        } else {
+            ua.innerText = `${userActivity.name}: ${userActivity.date.toLocaleString("ru")}`;
+            usersActivity.appendChild(ua);
         }
     }
 }
