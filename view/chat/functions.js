@@ -107,7 +107,6 @@ function shareMessageIDs() {
 
 function shareMessages(knownMessageIDs) {
     let messagesForShare = messages.filter((m) => knownMessageIDs.indexOf(m.id) === -1 && m.type === "message");
-    console.log(messagesForShare)
     socket.send(encrypt(JSON.stringify({
         type: "shareMessages",
         messages: messagesForShare,
@@ -117,7 +116,6 @@ function shareMessages(knownMessageIDs) {
 
 function synchronizeMessages(inputMessages) {
     let ids = messages.filter((m) => m.type === "message").map((m) => m.id);
-    console.log("aaa",inputMessages)
     for (let inputMessage of inputMessages) {
         if (ids.indexOf(inputMessage.id) === -1) {
             messages.push({
@@ -157,12 +155,16 @@ function updateUsersActivity() {
     usersActivityList.sort((a, b) => a.date < b.date ? 1 : -1)
 
     for (let userActivity of usersActivityList) {
-        let ua = document.createElement("div");
+        let ua = document.createElement("li");
+        let ua_span = document.createElement("span");
+        ua_span.className = "dropdown-item"
         if (new Date() - userActivity.date > 10000) {
             delete users[userActivity.userID]
         } else {
-            ua.innerText = `${userActivity.name}: ${userActivity.date.toLocaleString("ru")}`;
+            ua_span.innerText = `${userActivity.name}: ${userActivity.date.toLocaleString("ru")}`;
+            ua.appendChild(ua_span);
             usersActivity.appendChild(ua);
         }
     }
+    amountOfMembers.innerText = usersActivity.children.length.toString()
 }

@@ -8,6 +8,7 @@ class Chat:
                 open("view/chat/vars.js") as vars_js, \
                 open("view/crypto-js.js") as cryptojs_js, \
                 open("view/bootstrap.js") as bootstrap_js, \
+                open("view/popper.js") as popper_js, \
                 open("view/bootstrap.css") as bootstrap_css:
             style_css = style_css.read()
             cryptojs_js = cryptojs_js.read()
@@ -17,6 +18,7 @@ class Chat:
             vars_js = vars_js.read()
             bootstrap_js = bootstrap_js.read()
             bootstrap_css = bootstrap_css.read()
+            popper_js = popper_js.read()
             content = page.read()
             content = content.replace("/*style.css*/", style_css)
             content = content.replace("/*crypto-js.js*/", cryptojs_js)
@@ -26,6 +28,7 @@ class Chat:
             content = content.replace("/*functions.js*/", functions_js)
             content = content.replace("/*socket.js*/", socket_js)
             content = content.replace("/*vars.js*/", vars_js)
+            content = content.replace("/*popper.js*/", popper_js)
             self.__content = content
 
     @property
