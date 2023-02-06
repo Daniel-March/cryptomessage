@@ -42,4 +42,4 @@ async def websocket_endpoint(websocket: WebSocket, name: str, room_hash: str):
         await rooms[room_hash].broadcast(f"1{name}")
 
 
-uvicorn.run(app, host="127.0.0.1", port=8080)
+uvicorn.run(app, host="0.0.0.0", port=8000)
