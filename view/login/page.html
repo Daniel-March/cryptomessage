@@ -12,7 +12,7 @@
     </script>
 
     <script>
-        /*crypto-js*/
+        /*crypto-js.js*/
     </script>
 
     <style>
@@ -68,42 +68,8 @@
     <button id="logIn" class="w-100 btn btn-lg btn-primary mt-4">Connect</button>
 </main>
 <script>
-    function logIn() {
-        let roomKey = document.getElementById("room_key").value;
-        let name = document.getElementById("name").value;
-        let roomHash = CryptoJS.SHA3(roomKey).toString(CryptoJS.enc.Hex);
-        window.localStorage.setItem("roomKey", roomKey);
-        window.localStorage.setItem("name", name);
-        window.location = `/room/${roomHash}`
-    }
-
-    function checkRoomKey() {
-        let roomKeyInput = document.getElementById("room_key")
-        let nameInput = document.getElementById("name")
-        if (roomKeyInput.value.length > 0 && roomKeyInput.value.length % 4 === 0) {
-            roomKeyInput.className = roomKeyInput.className.replace(" text-danger", "")
-        } else {
-            roomKeyInput.className = roomKeyInput.className.replace(" text-danger", "")
-            roomKeyInput.className += " text-danger"
-        }
-        if (nameInput.value.length > 1) {
-            nameInput.className = nameInput.className.replace(" text-danger", "")
-        } else {
-            nameInput.className = nameInput.className.replace(" text-danger", "")
-            nameInput.className += " text-danger"
-        }
-        if (roomKeyInput.value.length > 0 && roomKeyInput.value.length % 4 === 0 &&
-            nameInput.value.length > 1) {
-            document.getElementById("logIn").onclick = logIn
-            document.getElementById("logIn").disabled = false
-
-        } else {
-            document.getElementById("logIn").onclick = null
-            document.getElementById("logIn").disabled = true
-
-        }
-    }
-
+    /*vars.js*/
+    /*functions.js*/
     checkRoomKey()
 </script>
 </body>
